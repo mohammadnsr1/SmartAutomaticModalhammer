@@ -107,6 +107,8 @@ fwrite(Serial, choice, 'char');
 tDur = input("Please specify the measurement time: ");
 
 Data = struct('Time',struct(),'Force', struct(), 'Acc', struct());
+Data.Time = cell(N,1);
+
 for i = 1:N
     DF = input("Please Enter the desired force:");
     fwrite(Serial, DF, 'uint16');
@@ -119,7 +121,6 @@ for i = 1:N
         if Trigger ~= 0
             acquired_data = read(dq, seconds(10 + tDur));
             t = seconds(acquired_data.Time);
-            Data.Time = t;
             for j = 1:numel(Force_channels_names)
                 name = Force_channels_names{j};
                 Force_data = acquired_data.(name) * 1000 /...
@@ -131,6 +132,7 @@ for i = 1:N
 
                 t = t(tA:end) - t(tA);
                 Data.Force.(name){i} = Force_data(tA:end);
+                Data.Time{i} = t;
                 Force = Data.Force.(name){i};
                 FM = max(Force)
                 error = (FM - DF)/DF
